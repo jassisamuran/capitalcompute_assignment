@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain, desktopCapturer, shell } from "electron";
-import { existsSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync, renameSync, writeFileSync } from "fs";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
 
@@ -62,3 +62,47 @@ ipcMain.handle("get-sources", async () => {
     appIcon: s.appIcon?.toDataURL() ?? null,
   }));
 });
+
+ipcMain.handle("create-session", () => {
+  const sessionId = uuidv4();
+  const sessionPath = join(getVideosDir(), sessionId);
+  ensureDir(sessionPath);
+  return { sessionId, sessionPath };
+});
+
+ipcMain.handle(
+  "save-recording",
+  async (
+    _event,
+    sessionId: string,
+    type: "screen" | "webcam",
+    buffer: ArrayBuffer,
+  ) => {
+    const sessionPath = join(getVideosDir(), sessionId);
+    const filename = type === "screen" ? "screen.webm" : "webcam.webm";
+    const filepath = join(sessionPath, filename);
+    writeFileSync(filepath, Buffer.from(buffer));
+    return filepath;
+  },
+);
+
+ipcMain.handle(
+  "rename-session",
+  (_event, sessionId: string, newName: string) => {
+    const oldPath = join(getVideosDir(), sessionId);
+    const safeName = newName.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 60);
+    const newPath = join(
+      getVideosDir(),
+      `${safeName}_${sessionId.slice(0, 8)}`,
+    );
+    renameSync(oldPath, newPath);
+    return newPath;
+  },
+);
+
+ipcMain.handle("open-folder", (_event, sessionId: string) => {
+  const sessionPath = join(getVideosDir(), sessionId);
+  shell.openPath(sessionPath);
+});
+
+ipcMain.handle("get-version", () => app.getVersion());
