@@ -15,14 +15,17 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.5.0",
     "electron": "^41.2.0",
     "electron-vite": "^5.0.0",
+    "postcss": "^8.5.9",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "tailwind": "^4.0.0",
+    "typescript": "^6.0.2",
     "vite": "^7.3.2"
   },
   "dependencies": {
-    "typescript": "^6.0.2",
     "uuid": "^13.0.0"
   }
 }
