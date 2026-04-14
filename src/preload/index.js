@@ -1,5 +1,5 @@
-import { contextBridge,ipcRenderer }  from "electron";
+import { contextBridge, ipcRenderer } from "electron";
 
-contextBridge.exposeInMainWorld("electronAPI",{
-    getSources:()=>ipcRenderer.invoke('get-sources')
-})
+contextBridge.exposeInMainWorld("electronAPI", {
+  getSources: () => ipcRenderer.invoke("get-sources"),
+});
