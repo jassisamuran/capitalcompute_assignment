@@ -1,7 +1,7 @@
 export interface Source {
   id: string;
   name: string;
-  thubnail: string;
+  thumbnail: string;
   display_id: string;
   appIcon: string | null;
 }
