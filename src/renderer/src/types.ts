@@ -20,6 +20,12 @@ declare global {
   interface Window {
     electronAPI: {
       getSources: () => Promise<Source[]>;
+      createSession: () => Promise<{ sessionId: string; sessionPath: string }>;
+      saveRecording: (
+        sessionId: string,
+        type: "screen" | "webcam",
+        buffer: ArrayBuffer,
+      ) => Promise<string>;
     };
   }
 }
