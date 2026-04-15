@@ -46,7 +46,6 @@ export default function App() {
       setSelectedSource(source);
       setStream(stream);
       setView("ready");
-
     } catch (err) {
       console.log("Permission denied", err);
     } finally {
@@ -55,8 +54,7 @@ export default function App() {
   };
 
   const handleStartRecording = async () => {
-    const { sessionId, sessionPath } =
-      await window.electronAPI.createSession();
+    const { sessionId, sessionPath } = await window.electronAPI.createSession();
 
     setSession({
       sessionId,

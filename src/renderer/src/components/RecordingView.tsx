@@ -210,7 +210,7 @@ const RecordingView = ({
   }, [session, stopping, onComplete]);
 
   return (
-      <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col">
       {/* Screen preview */}
       <div className="flex-1 relative bg-black overflow-hidden">
         <video
@@ -221,10 +221,12 @@ const RecordingView = ({
         />
 
         {/* REC indicator + timer */}
-        {mode === 'recording' && (
-          <div className="absolute top-4 left-4 flex items-center gap-2
+        {mode === "recording" && (
+          <div
+            className="absolute top-4 left-4 flex items-center gap-2
             bg-black/75 backdrop-blur-sm border border-zinc-700/60
-            px-3 py-1.5 rounded-full">
+            px-3 py-1.5 rounded-full"
+          >
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             <span className="text-xs font-mono text-zinc-100 tabular-nums tracking-widest">
               {timerLabel}
@@ -234,24 +236,28 @@ const RecordingView = ({
 
         {/* Webcam picture-in-picture */}
         {webcamEnabled && !webcamError && (
-          <div className="absolute bottom-4 right-4 w-44 aspect-video
+          <div
+            className="absolute bottom-4 right-4 w-44 aspect-video
             rounded-lg overflow-hidden border border-zinc-600/60
-            bg-zinc-900 shadow-2xl shadow-black/60">
+            bg-zinc-900 shadow-2xl shadow-black/60"
+          >
             <video
               ref={webcamVideoRef}
               muted
               playsInline
               className="w-full h-full object-cover"
-              style={{ transform: 'scaleX(-1)' }}
+              style={{ transform: "scaleX(-1)" }}
             />
           </div>
         )}
 
         {/* Webcam error state */}
         {webcamEnabled && webcamError && (
-          <div className="absolute bottom-4 right-4 w-44 aspect-video
+          <div
+            className="absolute bottom-4 right-4 w-44 aspect-video
             rounded-lg border border-red-900/50 bg-red-950/30
-            flex flex-col items-center justify-center gap-1">
+            flex flex-col items-center justify-center gap-1"
+          >
             {/* <CamOffIcon className="w-5 h-5 text-red-500/70" /> */}
             <p className="text-[10px] text-red-400/80 text-center px-2">
               {webcamError}
@@ -261,8 +267,10 @@ const RecordingView = ({
       </div>
 
       {/* Controls bar */}
-      <div className="flex-shrink-0 bg-[#111113] border-t border-zinc-800 px-5 py-3.5
-        flex items-center gap-3">
+      <div
+        className="flex-shrink-0 bg-[#111113] border-t border-zinc-800 px-5 py-3.5
+        flex items-center gap-3"
+      >
         {/* Source info */}
         <div className="flex-1 min-w-0">
           <p className="text-[11px] font-mono text-zinc-600 truncate">
@@ -271,7 +279,7 @@ const RecordingView = ({
         </div>
 
         {/* Ready mode controls */}
-        {mode === 'ready' && (
+        {mode === "ready" && (
           <>
             {/* Webcam toggle */}
             <button
@@ -279,14 +287,14 @@ const RecordingView = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium
                 border transition-all duration-150 ${
                   webcamEnabled
-                    ? 'bg-zinc-800 border-zinc-600 text-zinc-200 hover:border-zinc-500'
-                    : 'bg-zinc-900/50 border-zinc-800 text-zinc-600 hover:text-zinc-400'
+                    ? "bg-zinc-800 border-zinc-600 text-zinc-200 hover:border-zinc-500"
+                    : "bg-zinc-900/50 border-zinc-800 text-zinc-600 hover:text-zinc-400"
                 }`}
             >
               {/* <CamIcon
                 className={`w-3.5 h-3.5 ${webcamEnabled ? 'text-amber-400' : 'text-zinc-600'}`}
               /> */}
-              Webcam {webcamEnabled ? 'on' : 'off'}
+              Webcam {webcamEnabled ? "on" : "off"}
             </button>
 
             <button
@@ -310,7 +318,7 @@ const RecordingView = ({
         )}
 
         {/* Recording mode controls */}
-        {mode === 'recording' && (
+        {mode === "recording" && (
           <button
             onClick={stopRecording}
             disabled={stopping}
@@ -321,12 +329,11 @@ const RecordingView = ({
               focus:outline-none focus:ring-1 focus:ring-zinc-500"
           >
             <span className="w-3 h-3 rounded-sm bg-zinc-100" />
-            {stopping ? 'Saving…' : 'Stop'}
+            {stopping ? "Saving…" : "Stop"}
           </button>
         )}
       </div>
     </div>
-
   );
 };
 

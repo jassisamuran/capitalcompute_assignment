@@ -8,10 +8,7 @@ export default function SourceCard({
   onSelect: (s: Source) => void;
 }) {
   return (
-    <button
-      onClick={() => onSelect(source)}
-      className="group text-left"
-    >
+    <button onClick={() => onSelect(source)} className="group text-left">
       <div className="relative rounded-lg overflow-hidden border border-transparent hover:border-blue-500 transition">
         <img src={source.thumbnail} className="w-full h-full object-cover" />
 
@@ -20,9 +17,7 @@ export default function SourceCard({
         </div>
       </div>
 
-      <div className="mt-2 text-sm text-zinc-300 truncate">
-        {source.name}
-      </div>
+      <div className="mt-2 text-sm text-zinc-300 truncate">{source.name}</div>
     </button>
   );
 }
