@@ -58,7 +58,6 @@ export default function SourceGrid({
       {/* Sources list */}
       {!loading && (
         <div className="space-y-8">
-          nowis
           {screens.length > 0 && (
             <section>
               <SectionLabel text={`Displays — ${screens.length}`} />

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AppView, RecordingSession, Source } from "./types";
 import SourceGrid from "./components/SourceGrid";
 import RecordingView from "./components/RecordingView";
+import CompletionView from "./components/completionView/CompletionView";
 
 export default function App() {
   const [sources, setSources] = useState<Source[]>([]);
@@ -39,6 +40,12 @@ export default function App() {
     });
     setView("recording");
   };
+  const handleReset = () => {
+    setSelectedSource(null);
+    setSession(null);
+    setSources([]);
+    setView("select");
+  };
 
   const handleRecordingComplete = (updated: RecordingSession) => {
     setSession(updated);
@@ -46,8 +53,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ color: "blue" }}>
-      one issd one
+    <div className="text-white">
       <div className="h-8 flex items-center ">
         <span className="text-[20px] font-mono">CAPTURA</span>
       </div>
@@ -59,28 +65,24 @@ export default function App() {
           onSelect={handleSourceSelect}
         />
       </main>
-      {view === "ready" && selectedSource && (
+      {(view === "ready" || view === "recording") && selectedSource && (
         <RecordingView
           source={selectedSource}
           webcamEnabled={webcamEnabled}
           onWebcamToggle={setWebcamEnabled}
           onStart={handleStartRecording}
           onBack={() => setView("select")}
-          mode="ready"
-          session={null}
+          mode={view === "recording" ? "recording" : "ready"}
+          session={session}
           onComplete={handleRecordingComplete}
         />
       )}
-      {view === "recording" && selectedSource && session && (
-        <RecordingView
-          source={selectedSource}
-          webcamEnabled={webcamEnabled}
-          onWebcamToggle={setWebcamEnabled}
-          onStart={handleStartRecording}
-          onBack={() => {}}
-          mode="recording"
+
+      {view === "complete" && session && (
+        <CompletionView
           session={session}
-          onComplete={handleRecordingComplete}
+          webcamEnabled={webcamEnabled}
+          onReset={handleReset}
         />
       )}
     </div>

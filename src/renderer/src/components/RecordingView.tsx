@@ -23,6 +23,7 @@ const RecordingView = ({
   session,
   onComplete,
 }: Props) => {
+  const screenVideoRef = useRef<HTMLVideoElement>(null);
   const webcamVideoRef = useRef<HTMLVideoElement>(null);
   const screenStreamRef = useRef<MediaStream | null>(null);
   const webcamStreamRef = useRef<MediaStream | null>(null);
@@ -117,7 +118,9 @@ const RecordingView = ({
 
     init();
     return () => {
-      cancelled: true;
+      cancelled = true;
+      webcamStreamRef.current?.getTracks().forEach((t) => t.stop());
+      webcamStreamRef.current = null;
     };
   }, [webcamEnabled]);
 
@@ -206,11 +209,10 @@ const RecordingView = ({
     onComplete({ ...session, screenSaved: true, webcamSaved });
   }, [session, stopping, onComplete]);
 
-  const screenVideoRef = useRef<HTMLVideoElement>(null);
   return (
     <div className="h-full flex flex-col">
       <div className="bg-black ">
-        <video ref={screenVideoRef} muted className="w-full h-full" />
+        <video ref={screenVideoRef} muted autoPlay className="w-full h-full" />
 
         {mode === "recording" && (
           <div>
@@ -220,7 +222,7 @@ const RecordingView = ({
 
         {webcamEnabled && !webcamError && (
           <div>
-            <video ref={webcamVideoRef} muted playsInline />
+            <video ref={webcamVideoRef} muted playsInline autoPlay />
           </div>
         )}
 

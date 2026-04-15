@@ -26,6 +26,9 @@ declare global {
         type: "screen" | "webcam",
         buffer: ArrayBuffer,
       ) => Promise<string>;
+      renameSession: (sessionId: string, newName: string) => Promise<string>;
+      openFolder: (sessionId: string) => Promise<void>;
+      getVersion: () => Promise<string>;
     };
   }
 }
