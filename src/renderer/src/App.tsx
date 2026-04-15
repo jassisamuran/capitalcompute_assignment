@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppView, RecordingSession, Source } from "./types";
 import SourceGrid from "./components/SourceGrid";
+import RecordingView from "./components/RecordingView";
 
 export default function App() {
   const [sources, setSources] = useState<Source[]>([]);
@@ -27,6 +28,23 @@ export default function App() {
     }
   };
 
+  const handleStartRecording = async () => {
+    const { sessionId, sessionPath } = await window.electronAPI.createSession();
+    setSession({
+      sessionId,
+      sessionPath,
+      startedAt: Date.now(),
+      screenSaved: false,
+      webcamSaved: false,
+    });
+    setView("recording");
+  };
+
+  const handleRecordingComplete = (updated: RecordingSession) => {
+    setSession(updated);
+    setView("complete");
+  };
+
   return (
     <div style={{ color: "blue" }}>
       one issd one
@@ -41,6 +59,30 @@ export default function App() {
           onSelect={handleSourceSelect}
         />
       </main>
+      {view === "ready" && selectedSource && (
+        <RecordingView
+          source={selectedSource}
+          webcamEnabled={webcamEnabled}
+          onWebcamToggle={setWebcamEnabled}
+          onStart={handleStartRecording}
+          onBack={() => setView("select")}
+          mode="ready"
+          session={null}
+          onComplete={handleRecordingComplete}
+        />
+      )}
+      {view === "recording" && selectedSource && session && (
+        <RecordingView
+          source={selectedSource}
+          webcamEnabled={webcamEnabled}
+          onWebcamToggle={setWebcamEnabled}
+          onStart={handleStartRecording}
+          onBack={() => {}}
+          mode="recording"
+          session={session}
+          onComplete={handleRecordingComplete}
+        />
+      )}
     </div>
   );
 }
