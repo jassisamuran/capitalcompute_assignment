@@ -1,33 +1,28 @@
 import { Source } from "@/types";
-import React from "react";
-interface SourceCardProps {
+
+export default function SourceCard({
+  source,
+  onSelect,
+}: {
   source: Source;
   onSelect: (s: Source) => void;
-}
-
-const SourceCard: React.FC<SourceCardProps> = ({ source, onSelect }) => {
+}) {
   return (
-    <button onClick={() => onSelect(source)}>
-      <div className="aspect-video w-full overflow-hidden bg-zinc-950 relative">
-        <img src={source.thumbnail} alt={source.name} draggable={false} />
-        <div />
-        <span>SELECT</span>
+    <button
+      onClick={() => onSelect(source)}
+      className="group text-left"
+    >
+      <div className="relative rounded-lg overflow-hidden border border-transparent hover:border-blue-500 transition">
+        <img src={source.thumbnail} className="w-full h-full object-cover" />
+
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+          <span className="text-xs text-white">Click to select</span>
+        </div>
       </div>
 
-      {/* Label */}
-      <div>
-        {source.appIcon && (
-          <img
-            src={source.appIcon}
-            alt=""
-            className="w-3.5 h-3.5 flex-shrink-0 rounded-sm"
-            draggable={false}
-          />
-        )}
-        <span>{source.name}</span>
+      <div className="mt-2 text-sm text-zinc-300 truncate">
+        {source.name}
       </div>
     </button>
   );
-};
-
-export default SourceCard;
+}
