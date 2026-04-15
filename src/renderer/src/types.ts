@@ -6,7 +6,7 @@ export interface Source {
   appIcon: string | null;
 }
 
-export type AppView = "select" | "ready" | "recording" | "complete";
+export type AppView = 'home' | 'select' | 'ready' | 'recording' | 'complete' | 'library'
 
 export interface RecordingSession {
   sessionId: string;
