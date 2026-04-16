@@ -2,6 +2,7 @@ import { useState } from "react";
 import { RefreshIcon, ScanIcon } from "../common/Icons";
 import { Source } from "@/types";
 import { SourceCard } from "./SourceCard";
+import SectionLabel from "../common/Label";
 
 interface Props {
   onSelect: (source: Source) => void;
@@ -141,10 +142,4 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
   );
 }
 
-function SectionLabel({ text }: { text: string }) {
-  return (
-    <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.2em]">
-      {text}
-    </p>
-  );
-}
+
