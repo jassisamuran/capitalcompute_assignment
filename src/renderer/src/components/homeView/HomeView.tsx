@@ -1,4 +1,4 @@
-import { FolderIcon, RecordIcon } from "./Icons";
+import { FolderIcon, RecordIcon } from "../common/Icons";
 
 interface Props {
   onNewRecording: () => void;

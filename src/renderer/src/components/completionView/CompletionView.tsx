@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { RecordingSession } from "../../types";
 import FileRow from "./FileRow";
-import { FolderIcon } from "../homeView/Icons";
+import { FolderIcon } from "../common/Icons";
 
 interface Props {
   session: RecordingSession;
