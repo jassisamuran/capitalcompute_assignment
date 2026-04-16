@@ -5,6 +5,7 @@ import RecordingView from "./components/RecordingView";
 import CompletionView from "./components/completionView/CompletionView";
 import HomeView from "./components/homeView/HomeView";
 import SourceGrid from "./components/sourceGrid/SourceGrid";
+import SessionsView from "./components/sessionView";
 
 
 export default function App() {
@@ -93,6 +94,13 @@ export default function App() {
             // onViewLibrary={() => setView('library')}
           />
         )}
+
+                {view === 'library' && (
+          <SessionsView
+            onNewRecording={() => setView('select')}
+          />
+        )}
+
 
 
       </main>

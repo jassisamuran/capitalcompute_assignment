@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, desktopCapturer, shell } from "electron";
 import { existsSync, mkdirSync, renameSync, writeFileSync } from "fs";
 import { join } from "path";
+import { readdirSync, rmSync, statSync } from "fs";
 import { v4 as uuidv4 } from "uuid";
 
 const getVideosDir = (): string =>
@@ -103,6 +104,27 @@ ipcMain.handle(
 ipcMain.handle("open-folder", (_event, sessionId: string) => {
   const sessionPath = join(getVideosDir(), sessionId);
   shell.openPath(sessionPath);
+});
+
+ipcMain.handle("list-sessions", () => {
+  const baseDir = getVideosDir();
+
+  if (!existsSync(baseDir)) return [];
+
+  const folders = readdirSync(baseDir).filter((name) => {
+    const fullPath = join(baseDir, name);
+    return statSync(fullPath).isDirectory();
+  });
+
+  return folders.map((folderName) => {
+    const fullPath = join(baseDir, folderName);
+
+    return {
+      folderName,
+      path: fullPath,
+      createdAt: statSync(fullPath).birthtime,
+    };
+  });
 });
 
 ipcMain.handle("get-version", () => app.getVersion());

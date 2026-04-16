@@ -16,6 +16,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   openFolder: (sessionId: string) =>
     ipcRenderer.invoke("open-folder", sessionId),
+  listSessions: () => ipcRenderer.invoke('list-sessions'),
+  deleteSession: (folderName: string) =>
+    ipcRenderer.invoke('delete-session', folderName),
+
 
   getVersion: () => ipcRenderer.invoke("get-version"),
 });
