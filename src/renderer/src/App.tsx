@@ -26,12 +26,16 @@ export default function App() {
       startedAt: Date.now(),
       screenSaved: false,
       webcamSaved: false,
+      endedAt:undefined
     });
     setView("recording");
   };
 
   const handleRecordingComplete = (updated: RecordingSession) => {
-    setSession(updated);
+     setSession({
+    ...updated,
+    endedAt: Date.now(), 
+  });
     setView("complete");
   };
 

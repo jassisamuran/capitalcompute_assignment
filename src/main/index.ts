@@ -26,6 +26,8 @@ function createWindow(): BrowserWindow {
       sandbox: false,
     },
   });
+    win.maximize(); 
+
   
   if (process.env["ELECTRON_RENDERER_URL"]) {
     win.loadURL(process.env["ELECTRON_RENDERER_URL"]);

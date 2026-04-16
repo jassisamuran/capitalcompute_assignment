@@ -20,6 +20,7 @@ export interface RecordingSession {
   startedAt: number;
   screenSaved: boolean;
   webcamSaved: boolean;
+  endedAt:number| undefined
 }
 
 declare global {
