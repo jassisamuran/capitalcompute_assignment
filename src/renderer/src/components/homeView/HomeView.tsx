@@ -1,25 +1,24 @@
-import { FolderIcon, RecordIcon } from "./Icons"
+import { FolderIcon, RecordIcon } from "./Icons";
 
 interface Props {
-  onNewRecording: () => void
-  onViewLibrary: () => void
+  onNewRecording: () => void;
+  onViewLibrary: () => void;
 }
 
 export default function HomeView({ onNewRecording, onViewLibrary }: Props) {
   return (
     <div className="h-full flex flex-col items-center justify-center gap-8 px-6">
-
       <div className="flex flex-col items-center gap-2 select-none">
-        <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800
-          flex items-center justify-center mb-1">
+        <div
+          className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800
+          flex items-center justify-center mb-1"
+        >
           <RecordIcon className="w-8 h-8 text-red-500" />
         </div>
         <h1 className="text-2xl font-semibold text-zinc-100 tracking-tight">
           Captura
         </h1>
-        <p className="text-sm text-zinc-600">
-          Screen &amp; webcam recorder
-        </p>
+        <p className="text-sm text-zinc-600">Screen &amp; webcam recorder</p>
       </div>
 
       {/* Primary action */}
@@ -53,6 +52,5 @@ export default function HomeView({ onNewRecording, onViewLibrary }: Props) {
         recordings are saved to ~/Documents/Captura/videos/
       </p>
     </div>
-  )
+  );
 }
-

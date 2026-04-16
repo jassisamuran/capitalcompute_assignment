@@ -87,63 +87,66 @@ ipcMain.handle(
   },
 );
 
-ipcMain.handle('rename-session', (_event, folderName: string, newName: string) => {
-  const oldPath = join(getVideosDir(), folderName)
+ipcMain.handle(
+  "rename-session",
+  (_event, folderName: string, newName: string) => {
+    const oldPath = join(getVideosDir(), folderName);
 
-  const safeName = newName
-    .trim()
-    .replace(/[^a-zA-Z0-9_\-]/g, '_')
-    .slice(0, 50)
+    const safeName = newName
+      .trim()
+      .replace(/[^a-zA-Z0-9_\-]/g, "_")
+      .slice(0, 50);
 
-  const uniqueSuffix = folderName.slice(-8).replace(/[^a-zA-Z0-9]/g, '')
-  const newFolderName = `${safeName}_${uniqueSuffix}`
-  const newPath = join(getVideosDir(), newFolderName)
+    const uniqueSuffix = folderName.slice(-8).replace(/[^a-zA-Z0-9]/g, "");
+    const newFolderName = `${safeName}_${uniqueSuffix}`;
+    const newPath = join(getVideosDir(), newFolderName);
 
-  try {
-    renameSync(oldPath, newPath)
-    console.log("newfole",newFolderName)
-    return newFolderName
-  } catch (err: any) {
-    throw new Error(`Rename failed: ${err.message}`)
-  }
-})
+    try {
+      renameSync(oldPath, newPath);
+      console.log("newfole", newFolderName);
+      return newFolderName;
+    } catch (err: any) {
+      throw new Error(`Rename failed: ${err.message}`);
+    }
+  },
+);
 
 ipcMain.handle("open-folder", (_event, sessionId: string) => {
   const sessionPath = join(getVideosDir(), sessionId);
   shell.openPath(sessionPath);
 });
 
-ipcMain.handle('list-sessions', () => {
-  const videosDir = getVideosDir()
-  ensureDir(videosDir)
+ipcMain.handle("list-sessions", () => {
+  const videosDir = getVideosDir();
+  ensureDir(videosDir);
 
-  const entries = readdirSync(videosDir, { withFileTypes: true })
+  const entries = readdirSync(videosDir, { withFileTypes: true });
 
   return entries
     .filter((e) => e.isDirectory())
     .map((dir) => {
-      const folderPath = join(videosDir, dir.name)
+      const folderPath = join(videosDir, dir.name);
 
-      let files: string[] = []
+      let files: string[] = [];
       try {
-        files = readdirSync(folderPath)  // ['screen.webm', 'webcam.webm']
+        files = readdirSync(folderPath); // ['screen.webm', 'webcam.webm']
       } catch {
-        files = []
+        files = [];
       }
 
-      const screenExists = files.includes('screen.webm')
-      const webcamExists = files.includes('webcam.webm')
+      const screenExists = files.includes("screen.webm");
+      const webcamExists = files.includes("webcam.webm");
 
-      const stat = statSync(folderPath)
+      const stat = statSync(folderPath);
 
       const screenSize = screenExists
-        ? statSync(join(folderPath, 'screen.webm')).size
-        : 0
+        ? statSync(join(folderPath, "screen.webm")).size
+        : 0;
       const webcamSize = webcamExists
-        ? statSync(join(folderPath, 'webcam.webm')).size
-        : 0
+        ? statSync(join(folderPath, "webcam.webm")).size
+        : 0;
 
-      const d ={
+      const d = {
         folderName: dir.name,
         folderPath,
         createdAt: stat.birthtimeMs || stat.ctimeMs,
@@ -151,16 +154,16 @@ ipcMain.handle('list-sessions', () => {
         webcamExists,
         screenSize,
         webcamSize,
-      }
-console.log(d)
-return d
+      };
+      console.log(d);
+      return d;
     })
-    .sort((a, b) => b.createdAt - a.createdAt)
-})
+    .sort((a, b) => b.createdAt - a.createdAt);
+});
 
-ipcMain.handle('delete-session', (_event, folderName: string) => {
-  const folderPath = join(getVideosDir(), folderName)
-  rmSync(folderPath, { recursive: true, force: true })
-})
+ipcMain.handle("delete-session", (_event, folderName: string) => {
+  const folderPath = join(getVideosDir(), folderName);
+  rmSync(folderPath, { recursive: true, force: true });
+});
 
 ipcMain.handle("get-version", () => app.getVersion());

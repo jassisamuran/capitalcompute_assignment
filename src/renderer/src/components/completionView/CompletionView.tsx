@@ -7,15 +7,14 @@ interface Props {
   session: RecordingSession;
   webcamEnabled: boolean;
   onReset: () => void;
- setSession: React.Dispatch<React.SetStateAction<RecordingSession>>;
-
+  setSession: React.Dispatch<React.SetStateAction<RecordingSession>>;
 }
 
 export default function CompletionView({
   session,
   webcamEnabled,
   onReset,
-  setSession
+  setSession,
 }: Props) {
   const [renaming, setRenaming] = useState(false);
   const [nameInput, setNameInput] = useState("");
@@ -25,37 +24,36 @@ export default function CompletionView({
   const totalSecs = Math.round((Date.now() - session.startedAt) / 1000);
   const durMM = String(Math.floor(totalSecs / 60)).padStart(2, "0");
   const durSS = String(totalSecs % 60).padStart(2, "0");
-console.log("serssion",session)
+  console.log("serssion", session);
   const handleOpenFolder = () =>
     window.electronAPI.openFolder(session.sessionId);
 
   const handleRename = async () => {
-  if (!nameInput.trim()) return;
+    if (!nameInput.trim()) return;
 
-  try {
-    const newFolderName = await window.electronAPI.renameSession(
-      session.sessionId,
-      nameInput.trim()
-    );
+    try {
+      const newFolderName = await window.electronAPI.renameSession(
+        session.sessionId,
+        nameInput.trim(),
+      );
 
-    const baseDir = "/home/jaspreet/Documents/Captura/video"; 
-    const newPath = `${baseDir}/${newFolderName}`;
+      const baseDir = "/home/jaspreet/Documents/Captura/video";
+      const newPath = `${baseDir}/${newFolderName}`;
 
-    setSession(prev => ({
-      ...prev,
-      sessionId: newFolderName,
-      sessionPath: newPath,
-    }));
+      setSession((prev) => ({
+        ...prev,
+        sessionId: newFolderName,
+        sessionPath: newPath,
+      }));
 
-    setRenamed(false);
-    setRenaming(false);
-    setNameInput('')
-    setRenameError(null);
-
-  } catch {
-    setRenameError("Could not rename — folder may already exist.");
-  }
-};
+      setRenamed(false);
+      setRenaming(false);
+      setNameInput("");
+      setRenameError(null);
+    } catch {
+      setRenameError("Could not rename — folder may already exist.");
+    }
+  };
 
   return (
     <div className="h-full flex flex-col items-center justify-center px-6 gap-7">
@@ -98,7 +96,7 @@ console.log("serssion",session)
 
       {/* Rename session */}
       <div className="w-full max-w-xs">
-        {!renaming  && (
+        {!renaming && (
           <button
             onClick={() => setRenaming(true)}
             className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors

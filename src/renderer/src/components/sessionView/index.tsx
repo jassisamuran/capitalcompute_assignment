@@ -1,67 +1,73 @@
-import { SessionEntry } from '@/types'
-import { useEffect, useState, useCallback } from 'react'
-import { FolderIcon,RefreshIcon } from '../sessionView/Icons'
+import { SessionEntry } from "@/types";
+import { useEffect, useState, useCallback } from "react";
+import { FolderIcon, RefreshIcon } from "../sessionView/Icons";
 
 interface Props {
-  onNewRecording: () => void
+  onNewRecording: () => void;
 }
 
 export default function SessionsView({ onNewRecording }: Props) {
-  const [sessions, setSessions] = useState<SessionEntry[]>([])
-  const [loading, setLoading] = useState(true)
-  const [deletingFolder, setDeletingFolder] = useState<string | null>(null)
-  const [renamingFolder, setRenamingFolder] = useState<string | null>(null)
-  const [renameInput, setRenameInput] = useState('')
+  const [sessions, setSessions] = useState<SessionEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingFolder, setDeletingFolder] = useState<string | null>(null);
+  const [renamingFolder, setRenamingFolder] = useState<string | null>(null);
+  const [renameInput, setRenameInput] = useState("");
 
   const load = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const data = await window.electronAPI.listSessions()
-      console.log("nowis",data)
-      setSessions(data)
+      const data = await window.electronAPI.listSessions();
+      console.log("nowis", data);
+      setSessions(data);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load();
+  }, []);
 
   const handleOpen = (folderName: string) =>
-    window.electronAPI.openFolder(folderName)
+    window.electronAPI.openFolder(folderName);
 
   const handleDelete = async (folderName: string) => {
-    setDeletingFolder(folderName)
-    await window.electronAPI.deleteSession(folderName)
-    setSessions((prev) => prev.filter((s) => s.folderName !== folderName))
-    setDeletingFolder(null)
-  }
+    setDeletingFolder(folderName);
+    await window.electronAPI.deleteSession(folderName);
+    setSessions((prev) => prev.filter((s) => s.folderName !== folderName));
+    setDeletingFolder(null);
+  };
 
   const handleRenameSubmit = async (session: SessionEntry) => {
-  if (!renameInput.trim()) return
-  try {
-    await window.electronAPI.renameSession(session.folderName, renameInput.trim())
-    await load()
-  } catch (err) {
-    console.error('Rename failed:', err)
-    await load()
-  } finally {
-    setRenamingFolder(null)
-    setRenameInput('')
-  }
-}
+    if (!renameInput.trim()) return;
+    try {
+      await window.electronAPI.renameSession(
+        session.folderName,
+        renameInput.trim(),
+      );
+      await load();
+    } catch (err) {
+      console.error("Rename failed:", err);
+      await load();
+    } finally {
+      setRenamingFolder(null);
+      setRenameInput("");
+    }
+  };
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-
       {/* Header */}
-      <div className="flex-shrink-0 px-6 pt-5 pb-4 border-b border-zinc-800
-        flex items-center justify-between">
+      <div
+        className="flex-shrink-0 px-6 pt-5 pb-4 border-b border-zinc-800
+        flex items-center justify-between"
+      >
         <div>
           <h1 className="text-base font-semibold text-zinc-100 tracking-tight">
             Recordings
           </h1>
           <p className="text-xs text-zinc-600 mt-0.5 font-mono">
-            {sessions.length} session{sessions.length !== 1 ? 's' : ''} saved
+            {sessions.length} session{sessions.length !== 1 ? "s" : ""} saved
           </p>
         </div>
 
@@ -89,7 +95,6 @@ export default function SessionsView({ onNewRecording }: Props) {
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
-
         {loading && (
           <div className="flex items-center justify-center h-40">
             <p className="text-sm font-mono text-zinc-700 animate-pulse">
@@ -100,8 +105,10 @@ export default function SessionsView({ onNewRecording }: Props) {
 
         {!loading && sessions.length === 0 && (
           <div className="flex flex-col items-center justify-center h-48 gap-4">
-            <div className="w-12 h-12 rounded-xl bg-zinc-800/60 border border-zinc-800
-              flex items-center justify-center">
+            <div
+              className="w-12 h-12 rounded-xl bg-zinc-800/60 border border-zinc-800
+              flex items-center justify-center"
+            >
               <FolderIcon className="w-6 h-6 text-zinc-700" />
             </div>
             <div className="text-center">
@@ -133,13 +140,13 @@ export default function SessionsView({ onNewRecording }: Props) {
                 onOpen={() => handleOpen(session.folderName)}
                 onDelete={() => handleDelete(session.folderName)}
                 onRenameStart={() => {
-                  setRenamingFolder(session.folderName)
-                  setRenameInput('')
+                  setRenamingFolder(session.folderName);
+                  setRenameInput("");
                 }}
                 onRenameSubmit={() => handleRenameSubmit(session)}
                 onRenameCancel={() => {
-                  setRenamingFolder(null)
-                  setRenameInput('')
+                  setRenamingFolder(null);
+                  setRenameInput("");
                 }}
               />
             ))}
@@ -147,21 +154,20 @@ export default function SessionsView({ onNewRecording }: Props) {
         )}
       </div>
     </div>
-  )
+  );
 }
 
-
 interface RowProps {
-  session: SessionEntry
-  isDeleting: boolean
-  isRenaming: boolean
-  renameInput: string
-  onRenameInputChange: (v: string) => void
-  onOpen: () => void
-  onDelete: () => void
-  onRenameStart: () => void
-  onRenameSubmit: () => void
-  onRenameCancel: () => void
+  session: SessionEntry;
+  isDeleting: boolean;
+  isRenaming: boolean;
+  renameInput: string;
+  onRenameInputChange: (v: string) => void;
+  onOpen: () => void;
+  onDelete: () => void;
+  onRenameStart: () => void;
+  onRenameSubmit: () => void;
+  onRenameCancel: () => void;
 }
 
 function SessionRow({
@@ -176,23 +182,28 @@ function SessionRow({
   onRenameSubmit,
   onRenameCancel,
 }: RowProps) {
-  const date = new Date(session.createdAt)
+  const date = new Date(session.createdAt);
   const dateStr = date.toLocaleDateString(undefined, {
-    month: 'short', day: 'numeric', year: 'numeric',
-  })
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
   const timeStr = date.toLocaleTimeString(undefined, {
-    hour: '2-digit', minute: '2-digit',
-  })
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-  const totalSize = session.screenSize + session.webcamSize
+  const totalSize = session.screenSize + session.webcamSize;
 
   return (
-    <div className={`group bg-zinc-900/60 border rounded-xl px-4 py-3.5
+    <div
+      className={`group bg-zinc-900/60 border rounded-xl px-4 py-3.5
       transition-all duration-150 ${
-      isDeleting
-        ? 'opacity-40 border-zinc-800'
-        : 'border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900'
-    }`}>
+        isDeleting
+          ? "opacity-40 border-zinc-800"
+          : "border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900"
+      }`}
+    >
       {/* Top row: folder name + date */}
       <div className="flex items-start justify-between gap-4 mb-2.5">
         <div className="flex-1 min-w-0">
@@ -203,8 +214,8 @@ function SessionRow({
                 value={renameInput}
                 onChange={(e) => onRenameInputChange(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') onRenameSubmit()
-                  if (e.key === 'Escape') onRenameCancel()
+                  if (e.key === "Enter") onRenameSubmit();
+                  if (e.key === "Escape") onRenameCancel();
                 }}
                 placeholder="session name…"
                 maxLength={60}
@@ -240,13 +251,23 @@ function SessionRow({
       {/* File pills + size */}
       <div className="flex items-center gap-2 mb-3 flex-wrap">
         {session.screenExists && (
-          <FilePill label="screen.webm" size={session.screenSize} color="blue" />
+          <FilePill
+            label="screen.webm"
+            size={session.screenSize}
+            color="blue"
+          />
         )}
         {session.webcamExists && (
-          <FilePill label="webcam.webm" size={session.webcamSize} color="amber" />
+          <FilePill
+            label="webcam.webm"
+            size={session.webcamSize}
+            color="amber"
+          />
         )}
         {!session.screenExists && !session.webcamExists && (
-          <span className="text-[10px] font-mono text-zinc-700">empty folder</span>
+          <span className="text-[10px] font-mono text-zinc-700">
+            empty folder
+          </span>
         )}
         {totalSize > 0 && (
           <span className="ml-auto text-[10px] font-mono text-zinc-600">
@@ -286,41 +307,44 @@ function SessionRow({
             hover:border-red-900/40 rounded-lg 
              disabled:cursor-not-allowed"
         >
-          {isDeleting ? 'Deleting…' : 'Delete'}
+          {isDeleting ? "Deleting…" : "Delete"}
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-
 function FilePill({
-  label, size, color,
+  label,
+  size,
+  color,
 }: {
-  label: string
-  size: number
-  color: 'blue' | 'amber'
+  label: string;
+  size: number;
+  color: "blue" | "amber";
 }) {
   const styles =
-    color === 'blue'
-      ? 'bg-blue-950/50 border-blue-900/50 text-blue-400'
-      : 'bg-amber-950/50 border-amber-900/50 text-amber-500'
+    color === "blue"
+      ? "bg-blue-950/50 border-blue-900/50 text-blue-400"
+      : "bg-amber-950/50 border-amber-900/50 text-amber-500";
 
   return (
-    <span className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md
-      border text-[10px] font-mono ${styles}`}>
+    <span
+      className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md
+      border text-[10px] font-mono ${styles}`}
+    >
       <span className="w-1 h-1 rounded-full bg-current opacity-70" />
       {label}
       {size > 0 && (
         <span className="opacity-60 ml-0.5">{formatBytes(size)}</span>
       )}
     </span>
-  )
+  );
 }
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  if (bytes === 0) return "0 B";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }

@@ -6,7 +6,13 @@ export interface Source {
   appIcon: string | null;
 }
 
-export type AppView = 'home' | 'select' | 'ready' | 'recording' | 'complete' | 'library'
+export type AppView =
+  | "home"
+  | "select"
+  | "ready"
+  | "recording"
+  | "complete"
+  | "library";
 
 export interface RecordingSession {
   sessionId: string;
@@ -28,19 +34,19 @@ declare global {
       ) => Promise<string>;
       renameSession: (sessionId: string, newName: string) => Promise<string>;
       openFolder: (sessionId: string) => Promise<void>;
-      listSessions: () => Promise<SessionEntry[]>
-      deleteSession: (folderName: string) => Promise<void>
+      listSessions: () => Promise<SessionEntry[]>;
+      deleteSession: (folderName: string) => Promise<void>;
       getVersion: () => Promise<string>;
     };
   }
 }
 
 export interface SessionEntry {
-  folderName: string
-  folderPath: string
-  createdAt: number
-  screenExists: boolean
-  webcamExists: boolean
-  screenSize: number   
-  webcamSize: number   
+  folderName: string;
+  folderPath: string;
+  createdAt: number;
+  screenExists: boolean;
+  webcamExists: boolean;
+  screenSize: number;
+  webcamSize: number;
 }

@@ -1,40 +1,41 @@
-import { useState } from 'react'  // ← remove useEffect
-import { RefreshIcon, ScanIcon } from './Icons'
-import { Source } from '@/types'
-import { SourceCard } from './SourceCard'
+import { useState } from "react"; // ← remove useEffect
+import { RefreshIcon, ScanIcon } from "./Icons";
+import { Source } from "@/types";
+import { SourceCard } from "./SourceCard";
 
 interface Props {
-  onSelect: (source: Source) => void
-  onBack: () => void
+  onSelect: (source: Source) => void;
+  onBack: () => void;
 }
 
 export default function SourceGrid({ onSelect, onBack }: Props) {
-  const [sources, setSources] = useState<Source[]>([])
-  const [loading, setLoading] = useState(false)
-  const [loaded, setLoaded] = useState(false)  
+  const [sources, setSources] = useState<Source[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const loadSources = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const srcs = await window.electronAPI.getSources()
-      setSources(srcs)
-      setLoaded(true)
+      const srcs = await window.electronAPI.getSources();
+      setSources(srcs);
+      setLoaded(true);
     } catch (err) {
-      console.error('get-sources failed:', err)
+      console.error("get-sources failed:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const screens = sources.filter((s) => s.id.startsWith('screen:'))
-  const windows = sources.filter((s) => s.id.startsWith('window:'))
+  const screens = sources.filter((s) => s.id.startsWith("screen:"));
+  const windows = sources.filter((s) => s.id.startsWith("window:"));
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-
       {/* Header */}
-      <div className="flex-shrink-0 px-6 pt-5 pb-4 border-b border-zinc-800
-        flex items-center justify-between">
+      <div
+        className="flex-shrink-0 px-6 pt-5 pb-4 border-b border-zinc-800
+        flex items-center justify-between"
+      >
         <div>
           <h2 className="text-base font-semibold text-zinc-100">
             Select a source
@@ -69,7 +70,6 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto px-6 py-5">
-
         {/* Initial state — nothing loaded yet */}
         {!loaded && !loading && (
           <div className="flex flex-col items-center justify-center h-48 gap-4">
@@ -138,7 +138,7 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function SectionLabel({ text }: { text: string }) {
@@ -146,6 +146,5 @@ function SectionLabel({ text }: { text: string }) {
     <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.2em]">
       {text}
     </p>
-  )
+  );
 }
-
