@@ -1,5 +1,5 @@
-import { useState } from "react"; // ← remove useEffect
-import { RefreshIcon, ScanIcon } from "./Icons";
+import { useState } from "react";
+import { RefreshIcon, ScanIcon } from "../common/Icons";
 import { Source } from "@/types";
 import { SourceCard } from "./SourceCard";
 
