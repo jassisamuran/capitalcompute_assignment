@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RefreshIcon, ScanIcon } from "../common/Icons";
 import { Source } from "@/types";
 import { SourceCard } from "./SourceCard";
@@ -13,6 +13,7 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
   const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [selecting, setSelecting] = useState(false);
 
   const loadSources = async () => {
     setLoading(true);
@@ -27,8 +28,34 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
     }
   };
 
-  const screens = sources.filter((s) => s.id.startsWith("screen:"));
-  const windows = sources.filter((s) => s.id.startsWith("window:"));
+  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+  useEffect(() => {
+    if (sources.length === 0) return;
+
+    const runSelection = async () => {
+      const screens = sources.filter((s) => s.id.startsWith("screen:"));
+      const windows = sources.filter((s) => s.id.startsWith("window:"));
+
+      setSelecting(true);
+
+      await delay(500);
+
+      const selected =
+        screens.length > 0
+          ? screens[0]
+          : windows.length > 0
+            ? windows[0]
+            : null;
+
+      if (selected) {
+        onSelect(selected);
+      }
+
+      setSelecting(false);
+    };
+
+    runSelection();
+  }, [sources, onSelect]);
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -89,40 +116,17 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
           </div>
         )}
 
-        {/* Loading */}
-        {loading && (
-          <div className="flex items-center justify-center h-40">
-            <p className="text-sm font-mono text-zinc-700 animate-pulse">
-              scanning sources…
-            </p>
+        {selecting && (
+          <div className="flex flex-col items-center justify-center h-40 gap-3">
+            <div className="w-8 h-8 border-2 border-zinc-600 border-t-transparent rounded-full animate-spin"></div>
+
+            <p className="text-sm font-mono text-zinc-500">selecting source…</p>
           </div>
         )}
 
         {/* Sources list */}
-        {loaded && !loading && (
+        {loaded && !loading && !selecting && (
           <div className="space-y-7">
-            {screens.length > 0 && (
-              <section>
-                <SectionLabel text={`Displays — ${screens.length}`} />
-                <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 mt-3">
-                  {screens.map((s) => (
-                    <SourceCard key={s.id} source={s} onSelect={onSelect} />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {windows.length > 0 && (
-              <section>
-                <SectionLabel text={`Windows — ${windows.length}`} />
-                <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 mt-3">
-                  {windows.map((s) => (
-                    <SourceCard key={s.id} source={s} onSelect={onSelect} />
-                  ))}
-                </div>
-              </section>
-            )}
-
             {sources.length === 0 && (
               <div className="flex flex-col items-center justify-center h-32 gap-3">
                 <p className="text-sm text-zinc-600">No sources found</p>
@@ -141,5 +145,3 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
     </div>
   );
 }
-
-

@@ -303,9 +303,7 @@ function SessionRow({
         <div className="ml-auto flex items-center gap-1.5">
           {confirmingDelete ? (
             <>
-              <span className="text-[11px] text-zinc-500 font-mono">
-                sure?
-              </span>
+              <span className="text-[11px] text-zinc-500 font-mono">sure?</span>
               <button
                 onClick={() => {
                   setConfirmingDelete(false);

@@ -5,7 +5,7 @@ import { readdirSync, rmSync, statSync } from "fs";
 import { v4 as uuidv4 } from "uuid";
 
 const getVideosDir = (): string =>
-  join(app.getPath("documents"), "Captura", "video");
+  join(app.getPath("documents"), "ScreenCasta", "video");
 
 function ensureDir(dir: string): void {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
@@ -26,7 +26,7 @@ function createWindow(): BrowserWindow {
       sandbox: false,
     },
   });
-
+  
   if (process.env["ELECTRON_RENDERER_URL"]) {
     win.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {

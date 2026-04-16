@@ -36,7 +36,7 @@ export default function CompletionView({
         nameInput.trim(),
       );
 
-      const baseDir = "/home/jaspreet/Documents/Captura/video";
+      const baseDir = "/home/jaspreet/Documents/ScreenCasta/video";
       const newPath = `${baseDir}/${newFolderName}`;
 
       setSession((prev) => ({

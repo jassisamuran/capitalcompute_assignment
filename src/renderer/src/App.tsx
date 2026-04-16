@@ -43,16 +43,6 @@ export default function App() {
 
   return (
     <div className="h-screen flex flex-col bg-[#0e0e10] text-zinc-100 overflow-hidden">
-      {/* Title bar */}
-      <div
-        className="h-9 flex-shrink-0 flex items-center border-b border-zinc-900"
-        style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
-      >
-        <span className="text-[10px] font-mono text-white uppercase">
-          CAPTURA
-        </span>
-      </div>
-
       <main className="flex-1 overflow-hidden">
         {view === "home" && (
           <HomeView

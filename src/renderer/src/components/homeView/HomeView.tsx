@@ -16,7 +16,7 @@ export default function HomeView({ onNewRecording, onViewLibrary }: Props) {
           <RecordIcon className="w-8 h-8 text-red-500" />
         </div>
         <h1 className="text-2xl font-semibold text-zinc-100 tracking-tight">
-          Captura
+          ScreenCasta
         </h1>
         <p className="text-sm text-zinc-600">Screen &amp; webcam recorder</p>
       </div>
@@ -49,7 +49,7 @@ export default function HomeView({ onNewRecording, onViewLibrary }: Props) {
 
       {/* Tip */}
       <p className="text-[11px] font-mono text-zinc-700 text-center max-w-xs leading-relaxed">
-        recordings are saved to ~/Documents/Captura/videos/
+        recordings are saved to ~/Documents/ScreenCasta/videos/
       </p>
     </div>
   );
