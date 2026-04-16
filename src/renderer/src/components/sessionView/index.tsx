@@ -37,18 +37,18 @@ export default function SessionsView({ onNewRecording }: Props) {
   }
 
   const handleRenameSubmit = async (session: SessionEntry) => {
-    if (!renameInput.trim()) return
-    try {
-      await window.electronAPI.renameSession(session.folderName, renameInput.trim())
-      await load() 
-    } catch {
-      // folder with that name already exists — silently reload
-      await load()
-    } finally {
-      setRenamingFolder(null)
-      setRenameInput('')
-    }
+  if (!renameInput.trim()) return
+  try {
+    await window.electronAPI.renameSession(session.folderName, renameInput.trim())
+    await load()
+  } catch (err) {
+    console.error('Rename failed:', err)
+    await load()
+  } finally {
+    setRenamingFolder(null)
+    setRenameInput('')
   }
+}
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -239,7 +239,6 @@ function SessionRow({
 
       {/* File pills + size */}
       <div className="flex items-center gap-2 mb-3 flex-wrap">
-        console.log(session)
         {session.screenExists && (
           <FilePill label="screen.webm" size={session.screenSize} color="blue" />
         )}

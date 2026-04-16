@@ -1,17 +1,21 @@
 import { useState } from "react";
 import { RecordingSession } from "../../types";
 import FileRow from "./FileRow";
+import { FolderIcon } from "../homeView/Icons";
 
 interface Props {
   session: RecordingSession;
   webcamEnabled: boolean;
   onReset: () => void;
+ setSession: React.Dispatch<React.SetStateAction<RecordingSession>>;
+
 }
 
 export default function CompletionView({
   session,
   webcamEnabled,
   onReset,
+  setSession
 }: Props) {
   const [renaming, setRenaming] = useState(false);
   const [nameInput, setNameInput] = useState("");
@@ -21,24 +25,37 @@ export default function CompletionView({
   const totalSecs = Math.round((Date.now() - session.startedAt) / 1000);
   const durMM = String(Math.floor(totalSecs / 60)).padStart(2, "0");
   const durSS = String(totalSecs % 60).padStart(2, "0");
-
+console.log("serssion",session)
   const handleOpenFolder = () =>
     window.electronAPI.openFolder(session.sessionId);
 
   const handleRename = async () => {
-    if (!nameInput.trim()) return;
-    try {
-      await window.electronAPI.renameSession(
-        session.sessionId,
-        nameInput.trim(),
-      );
-      setRenamed(true);
-      setRenaming(false);
-      setRenameError(null);
-    } catch {
-      setRenameError("Could not rename — folder may already exist.");
-    }
-  };
+  if (!nameInput.trim()) return;
+
+  try {
+    const newFolderName = await window.electronAPI.renameSession(
+      session.sessionId,
+      nameInput.trim()
+    );
+
+    const baseDir = "/home/jaspreet/Documents/Captura/video"; 
+    const newPath = `${baseDir}/${newFolderName}`;
+
+    setSession(prev => ({
+      ...prev,
+      sessionId: newFolderName,
+      sessionPath: newPath,
+    }));
+
+    setRenamed(false);
+    setRenaming(false);
+    setNameInput('')
+    setRenameError(null);
+
+  } catch {
+    setRenameError("Could not rename — folder may already exist.");
+  }
+};
 
   return (
     <div className="h-full flex flex-col items-center justify-center px-6 gap-7">
@@ -73,14 +90,15 @@ export default function CompletionView({
         {/* Session ID / folder name */}
         <div className="pt-2 mt-2 border-t border-zinc-800">
           <p className="text-[10px] font-mono text-zinc-700 break-all">
-            {renamed ? "(renamed — check folder)" : session.sessionId}
+            {/* {renamed ? "(renamed — check folder)" : session.sessionId} */}
+            {session.sessionId}
           </p>
         </div>
       </div>
 
       {/* Rename session */}
       <div className="w-full max-w-xs">
-        {!renaming && !renamed && (
+        {!renaming  && (
           <button
             onClick={() => setRenaming(true)}
             className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors
@@ -135,7 +153,7 @@ export default function CompletionView({
             hover:bg-zinc-700 border border-zinc-700 text-zinc-200
             text-sm font-medium rounded-lg transition-colors"
         >
-          {/* <FolderIcon className="w-4 h-4 text-zinc-400" /> */}
+          <FolderIcon className="w-4 h-4 text-zinc-400" />
           Open folder
         </button>
         <button

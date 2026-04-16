@@ -91,7 +91,7 @@ export default function App() {
             session={session}
             webcamEnabled={webcamEnabled}
             onReset={handleReset}
-            // onViewLibrary={() => setView('library')}
+            setSession={setSession}
           />
         )}
 

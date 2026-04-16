@@ -87,44 +87,80 @@ ipcMain.handle(
   },
 );
 
-ipcMain.handle(
-  "rename-session",
-  (_event, sessionId: string, newName: string) => {
-    const oldPath = join(getVideosDir(), sessionId);
-    const safeName = newName.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 60);
-    const newPath = join(
-      getVideosDir(),
-      `${safeName}_${sessionId.slice(0, 8)}`,
-    );
-    renameSync(oldPath, newPath);
-    return newPath;
-  },
-);
+ipcMain.handle('rename-session', (_event, folderName: string, newName: string) => {
+  const oldPath = join(getVideosDir(), folderName)
+
+  const safeName = newName
+    .trim()
+    .replace(/[^a-zA-Z0-9_\-]/g, '_')
+    .slice(0, 50)
+
+  const uniqueSuffix = folderName.slice(-8).replace(/[^a-zA-Z0-9]/g, '')
+  const newFolderName = `${safeName}_${uniqueSuffix}`
+  const newPath = join(getVideosDir(), newFolderName)
+
+  try {
+    renameSync(oldPath, newPath)
+    console.log("newfole",newFolderName)
+    return newFolderName
+  } catch (err: any) {
+    throw new Error(`Rename failed: ${err.message}`)
+  }
+})
 
 ipcMain.handle("open-folder", (_event, sessionId: string) => {
   const sessionPath = join(getVideosDir(), sessionId);
   shell.openPath(sessionPath);
 });
 
-ipcMain.handle("list-sessions", () => {
-  const baseDir = getVideosDir();
+ipcMain.handle('list-sessions', () => {
+  const videosDir = getVideosDir()
+  ensureDir(videosDir)
 
-  if (!existsSync(baseDir)) return [];
+  const entries = readdirSync(videosDir, { withFileTypes: true })
 
-  const folders = readdirSync(baseDir).filter((name) => {
-    const fullPath = join(baseDir, name);
-    return statSync(fullPath).isDirectory();
-  });
+  return entries
+    .filter((e) => e.isDirectory())
+    .map((dir) => {
+      const folderPath = join(videosDir, dir.name)
 
-  return folders.map((folderName) => {
-    const fullPath = join(baseDir, folderName);
+      let files: string[] = []
+      try {
+        files = readdirSync(folderPath)  // ['screen.webm', 'webcam.webm']
+      } catch {
+        files = []
+      }
 
-    return {
-      folderName,
-      path: fullPath,
-      createdAt: statSync(fullPath).birthtime,
-    };
-  });
-});
+      const screenExists = files.includes('screen.webm')
+      const webcamExists = files.includes('webcam.webm')
+
+      const stat = statSync(folderPath)
+
+      const screenSize = screenExists
+        ? statSync(join(folderPath, 'screen.webm')).size
+        : 0
+      const webcamSize = webcamExists
+        ? statSync(join(folderPath, 'webcam.webm')).size
+        : 0
+
+      const d ={
+        folderName: dir.name,
+        folderPath,
+        createdAt: stat.birthtimeMs || stat.ctimeMs,
+        screenExists,
+        webcamExists,
+        screenSize,
+        webcamSize,
+      }
+console.log(d)
+return d
+    })
+    .sort((a, b) => b.createdAt - a.createdAt)
+})
+
+ipcMain.handle('delete-session', (_event, folderName: string) => {
+  const folderPath = join(getVideosDir(), folderName)
+  rmSync(folderPath, { recursive: true, force: true })
+})
 
 ipcMain.handle("get-version", () => app.getVersion());
