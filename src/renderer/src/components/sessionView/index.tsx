@@ -181,6 +181,8 @@ function SessionRow({
   onRenameSubmit,
   onRenameCancel,
 }: RowProps) {
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
   const date = new Date(session.createdAt);
   const dateStr = date.toLocaleDateString(undefined, {
     month: "short",
@@ -298,16 +300,46 @@ function SessionRow({
           </button>
         )}
 
-        <button
-          onClick={onDelete}
-          disabled={isDeleting}
-          className="ml-auto px-3 py-1.5 text-[11px] text-red-900
-            hover:text-red-400 border border-transparent
-            hover:border-red-900/40 rounded-lg 
-             disabled:cursor-not-allowed"
-        >
-          {isDeleting ? "Deleting…" : "Delete"}
-        </button>
+        <div className="ml-auto flex items-center gap-1.5">
+          {confirmingDelete ? (
+            <>
+              <span className="text-[11px] text-zinc-500 font-mono">
+                sure?
+              </span>
+              <button
+                onClick={() => {
+                  setConfirmingDelete(false);
+                  onDelete();
+                }}
+                disabled={isDeleting}
+                className="px-3 py-1.5 text-[11px] font-bold text-white
+                  bg-red-600 hover:bg-red-500 rounded-lg transition-colors
+                  disabled:cursor-not-allowed"
+              >
+                {isDeleting ? "Deleting…" : "Yes, delete"}
+              </button>
+              <button
+                onClick={() => setConfirmingDelete(false)}
+                className="px-3 py-1.5 text-[11px] text-zinc-600
+                  hover:text-zinc-400 border border-transparent
+                  hover:border-zinc-800 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setConfirmingDelete(true)}
+              disabled={isDeleting}
+              className="px-3 py-1.5 text-[11px] text-red-900
+                hover:text-red-400 border border-transparent
+                hover:border-red-900/40 rounded-lg
+                disabled:cursor-not-allowed"
+            >
+              Delete
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
