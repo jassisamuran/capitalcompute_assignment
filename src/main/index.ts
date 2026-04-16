@@ -103,7 +103,6 @@ ipcMain.handle(
 
     try {
       renameSync(oldPath, newPath);
-      console.log("newfole", newFolderName);
       return newFolderName;
     } catch (err: any) {
       throw new Error(`Rename failed: ${err.message}`);
@@ -155,7 +154,6 @@ ipcMain.handle("list-sessions", () => {
         screenSize,
         webcamSize,
       };
-      console.log(d);
       return d;
     })
     .sort((a, b) => b.createdAt - a.createdAt);

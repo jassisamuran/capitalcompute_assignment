@@ -17,7 +17,6 @@ export default function SessionsView({ onNewRecording }: Props) {
     setLoading(true);
     try {
       const data = await window.electronAPI.listSessions();
-      console.log("nowis", data);
       setSessions(data);
     } finally {
       setLoading(false);

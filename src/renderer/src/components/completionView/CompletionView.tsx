@@ -24,7 +24,6 @@ export default function CompletionView({
   const totalSecs = Math.round((Date.now() - session.startedAt) / 1000);
   const durMM = String(Math.floor(totalSecs / 60)).padStart(2, "0");
   const durSS = String(totalSecs % 60).padStart(2, "0");
-  console.log("serssion", session);
   const handleOpenFolder = () =>
     window.electronAPI.openFolder(session.sessionId);
 

@@ -7,7 +7,6 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "node",
     "outDir": "out"
   },
   "include": ["electron.vite.config.ts", "src/main/**/*", "src/preload/**/*"]
