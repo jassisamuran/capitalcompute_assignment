@@ -1,4 +1,11 @@
-import { app, BrowserWindow, ipcMain, desktopCapturer, shell } from "electron";
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  desktopCapturer,
+  shell,
+  dialog,
+} from "electron";
 import { existsSync, mkdirSync, renameSync, writeFileSync } from "fs";
 import { join } from "path";
 import { readdirSync, rmSync, statSync } from "fs";
@@ -10,6 +17,10 @@ const getVideosDir = (): string =>
 function ensureDir(dir: string): void {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 }
+
+let isRecording = false;
+let mainWindow: BrowserWindow | null = null;
+
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 1000,
@@ -26,9 +37,31 @@ function createWindow(): BrowserWindow {
       sandbox: false,
     },
   });
-    win.maximize(); 
+  win.maximize();
 
-  
+
+  win.on("close", (e) => {
+    if (!isRecording) return;
+
+    e.preventDefault();
+    const choice = dialog.showMessageBoxSync(win, {
+      type: "warning",
+      buttons: ["Stop & Close", "Keep Recording"],
+      defaultId: 1,
+      cancelId: 1,
+      title: "Recording in progress",
+      message: "A recording is in progress.",
+      detail:
+        "Stopping now will save whatever has been captured so far. Continue anyway?",
+    });
+
+    if (choice === 0) {
+      win.webContents.send("force-stop-recording");
+      isRecording = false;
+      setTimeout(() => win.destroy(), 5000);
+    }
+  });
+
   if (process.env["ELECTRON_RENDERER_URL"]) {
     win.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {
@@ -40,10 +73,12 @@ function createWindow(): BrowserWindow {
 
 app.whenReady().then(() => {
   ensureDir(getVideosDir());
-  createWindow();
+  mainWindow = createWindow();
 
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length == 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      mainWindow = createWindow();
+    }
   });
 });
 
@@ -51,19 +86,43 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
+app.on("before-quit", (e) => {
+  if (!isRecording) return;
+
+  e.preventDefault();
+  isRecording = false;
+
+  const wins = BrowserWindow.getAllWindows();
+  if (wins.length > 0) {
+    wins[0].webContents.send("force-stop-recording");
+  }
+  setTimeout(() => app.quit(), 5000);
+});
+
+
 ipcMain.handle("get-sources", async () => {
-  const sources = await desktopCapturer.getSources({
-    types: ["screen", "window"],
-    thumbnailSize: { width: 320, height: 200 },
-    fetchWindowIcons: true,
-  });
-  return sources.map((s) => ({
-    id: s.id,
-    name: s.name,
-    thumbnail: s.thumbnail.toDataURL(),
-    display_id: s.display_id,
-    appIcon: s.appIcon?.toDataURL() ?? null,
-  }));
+  try {
+    const sources = await desktopCapturer.getSources({
+      types: ["screen", "window"],
+      thumbnailSize: { width: 320, height: 200 },
+      fetchWindowIcons: true,
+    });
+    return {
+      ok: true as const,
+      sources: sources.map((s) => ({
+        id: s.id,
+        name: s.name,
+        thumbnail: s.thumbnail.toDataURL(),
+        display_id: s.display_id,
+        appIcon: s.appIcon?.toDataURL() ?? null,
+      })),
+    };
+  } catch (err: any) {
+    return {
+      ok: false as const,
+      error: (err?.message as string) ?? "Screen capture permission denied",
+    };
+  }
 });
 
 ipcMain.handle("create-session", () => {
@@ -71,6 +130,21 @@ ipcMain.handle("create-session", () => {
   const sessionPath = join(getVideosDir(), sessionId);
   ensureDir(sessionPath);
   return { sessionId, sessionPath };
+});
+
+ipcMain.handle("hide-for-recording", () => {
+  BrowserWindow.getAllWindows().forEach((w) => w.minimize());
+});
+
+ipcMain.handle("show-after-recording", () => {
+  BrowserWindow.getAllWindows().forEach((w) => {
+    w.restore();
+    w.focus();
+  });
+});
+
+ipcMain.handle("set-recording-state", (_event, recording: boolean) => {
+  isRecording = recording;
 });
 
 ipcMain.handle(
@@ -82,6 +156,14 @@ ipcMain.handle(
     buffer: ArrayBuffer,
   ) => {
     const sessionPath = join(getVideosDir(), sessionId);
+    ensureDir(sessionPath);
+
+    if (!buffer || buffer.byteLength === 0) {
+      throw new Error(
+        `Nothing to save — the ${type} recording was empty. Try recording for longer.`,
+      );
+    }
+
     const filename = type === "screen" ? "screen.webm" : "webcam.webm";
     const filepath = join(sessionPath, filename);
     writeFileSync(filepath, Buffer.from(buffer));
@@ -92,7 +174,12 @@ ipcMain.handle(
 ipcMain.handle(
   "rename-session",
   (_event, folderName: string, newName: string) => {
-    const oldPath = join(getVideosDir(), folderName);
+    const videosDir = getVideosDir();
+    const oldPath = join(videosDir, folderName);
+
+    if (!existsSync(oldPath)) {
+      throw new Error("Session folder no longer exists.");
+    }
 
     const safeName = newName
       .trim()
@@ -101,7 +188,13 @@ ipcMain.handle(
 
     const uniqueSuffix = folderName.slice(-8).replace(/[^a-zA-Z0-9]/g, "");
     const newFolderName = `${safeName}_${uniqueSuffix}`;
-    const newPath = join(getVideosDir(), newFolderName);
+    const newPath = join(videosDir, newFolderName);
+
+    if (existsSync(newPath)) {
+      throw new Error(
+        `A session named "${newFolderName}" already exists. Choose a different name.`,
+      );
+    }
 
     try {
       renameSync(oldPath, newPath);
@@ -114,7 +207,12 @@ ipcMain.handle(
 
 ipcMain.handle("open-folder", (_event, sessionId: string) => {
   const sessionPath = join(getVideosDir(), sessionId);
-  shell.openPath(sessionPath);
+
+  if (existsSync(sessionPath)) {
+    shell.openPath(sessionPath);
+  } else {
+    shell.openPath(getVideosDir());
+  }
 });
 
 ipcMain.handle("list-sessions", () => {
@@ -130,7 +228,7 @@ ipcMain.handle("list-sessions", () => {
 
       let files: string[] = [];
       try {
-        files = readdirSync(folderPath); // ['screen.webm', 'webcam.webm']
+        files = readdirSync(folderPath);
       } catch {
         files = [];
       }
@@ -147,7 +245,7 @@ ipcMain.handle("list-sessions", () => {
         ? statSync(join(folderPath, "webcam.webm")).size
         : 0;
 
-      const d = {
+      return {
         folderName: dir.name,
         folderPath,
         createdAt: stat.birthtimeMs || stat.ctimeMs,
@@ -156,14 +254,15 @@ ipcMain.handle("list-sessions", () => {
         screenSize,
         webcamSize,
       };
-      return d;
     })
     .sort((a, b) => b.createdAt - a.createdAt);
 });
 
 ipcMain.handle("delete-session", (_event, folderName: string) => {
   const folderPath = join(getVideosDir(), folderName);
-  rmSync(folderPath, { recursive: true, force: true });
+  if (existsSync(folderPath)) {
+    rmSync(folderPath, { recursive: true, force: true });
+  }
 });
 
 ipcMain.handle("get-version", () => app.getVersion());

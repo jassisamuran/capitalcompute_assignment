@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { RefreshIcon, ScanIcon } from "../common/Icons";
 import { Source } from "@/types";
-import { SourceCard } from "./SourceCard";
-import SectionLabel from "../common/Label";
 
 interface Props {
   onSelect: (source: Source) => void;
@@ -14,15 +12,29 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [selecting, setSelecting] = useState(false);
+  const [permissionError, setPermissionError] = useState<string | null>(null);
 
   const loadSources = async () => {
     setLoading(true);
+    setPermissionError(null);
     try {
-      const srcs = await window.electronAPI.getSources();
-      setSources(srcs);
+      const result = await window.electronAPI.getSources();
+
+      if (!result.ok) {
+        setPermissionError(
+          result.error ??
+            "Screen capture permission denied. Grant access in System Settings › Privacy & Security › Screen Recording, then restart the app.",
+        );
+        setLoaded(true);
+        return;
+      }
+
+      setSources(result.sources);
       setLoaded(true);
     } catch (err) {
       console.error("get-sources failed:", err);
+      setPermissionError("Failed to load sources. Please try again.");
+      setLoaded(true);
     } finally {
       setLoading(false);
     }
@@ -47,10 +59,7 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
             ? windows[0]
             : null;
 
-      if (selected) {
-        onSelect(selected);
-      }
-
+      if (selected) onSelect(selected);
       setSelecting(false);
     };
 
@@ -73,7 +82,7 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {loaded && (
+          {loaded && !permissionError && (
             <button
               onClick={loadSources}
               disabled={loading}
@@ -98,8 +107,35 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto px-6 py-5">
-        {/* Initial state — nothing loaded yet */}
-        {!loaded && !loading && (
+        {permissionError && (
+          <div className="flex flex-col items-center justify-center h-56 gap-4 text-center">
+            <div
+              className="w-12 h-12 rounded-xl bg-red-950/40 border border-red-900/40
+              flex items-center justify-center"
+            >
+              <span className="text-red-400 text-xl leading-none font-bold">
+                !
+              </span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-zinc-200">
+                Permission required
+              </p>
+              <p className="text-xs text-zinc-500 mt-1.5 max-w-xs leading-relaxed">
+                {permissionError}
+              </p>
+            </div>
+            <button
+              onClick={loadSources}
+              className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700
+                text-zinc-200 text-xs font-medium rounded-lg transition-colors"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
+        {!loaded && !loading && !permissionError && (
           <div className="flex flex-col items-center justify-center h-48 gap-4">
             <p className="text-sm text-zinc-600">
               Click below to see available screens and windows
@@ -116,6 +152,13 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
           </div>
         )}
 
+        {loading && (
+          <div className="flex flex-col items-center justify-center h-40 gap-3">
+            <div className="w-8 h-8 border-2 border-zinc-600 border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm font-mono text-zinc-500">scanning…</p>
+          </div>
+        )}
+
         {selecting && (
           <div className="flex flex-col items-center justify-center h-40 gap-3">
             <div className="w-8 h-8 border-2 border-zinc-600 border-t-transparent rounded-full animate-spin"></div>
@@ -125,7 +168,7 @@ export default function SourceGrid({ onSelect, onBack }: Props) {
         )}
 
         {/* Sources list */}
-        {loaded && !loading && !selecting && (
+        {loaded && !loading && !selecting && !permissionError && (
           <div className="space-y-7">
             {sources.length === 0 && (
               <div className="flex flex-col items-center justify-center h-32 gap-3">

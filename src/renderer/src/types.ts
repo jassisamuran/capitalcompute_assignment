@@ -6,6 +6,10 @@ export interface Source {
   appIcon: string | null;
 }
 
+export type GetSourcesResponse =
+  | { ok: true; sources: Source[] }
+  | { ok: false; error: string };
+
 export type AppView =
   | "home"
   | "select"
@@ -20,13 +24,13 @@ export interface RecordingSession {
   startedAt: number;
   screenSaved: boolean;
   webcamSaved: boolean;
-  endedAt:number| undefined
+  endedAt: number | undefined;
 }
 
 declare global {
   interface Window {
     electronAPI: {
-      getSources: () => Promise<Source[]>;
+      getSources: () => Promise<GetSourcesResponse>;
       createSession: () => Promise<{ sessionId: string; sessionPath: string }>;
       saveRecording: (
         sessionId: string,
@@ -37,6 +41,7 @@ declare global {
       openFolder: (sessionId: string) => Promise<void>;
       listSessions: () => Promise<SessionEntry[]>;
       deleteSession: (folderName: string) => Promise<void>;
+      setRecordingState: (arg0: boolean) => void;
       getVersion: () => Promise<string>;
     };
   }

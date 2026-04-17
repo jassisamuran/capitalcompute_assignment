@@ -20,22 +20,24 @@ export default function App() {
 
   const handleStartRecording = async () => {
     const { sessionId, sessionPath } = await window.electronAPI.createSession();
+    window.electronAPI.setRecordingState(true);
+
     setSession({
       sessionId,
       sessionPath,
       startedAt: Date.now(),
       screenSaved: false,
       webcamSaved: false,
-      endedAt:undefined
+      endedAt: undefined,
     });
     setView("recording");
   };
 
   const handleRecordingComplete = (updated: RecordingSession) => {
-     setSession({
-    ...updated,
-    endedAt: Date.now(), 
-  });
+    setSession({
+      ...updated,
+      endedAt: Date.now(),
+    });
     setView("complete");
   };
 
